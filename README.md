@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# finprecise-loan-simulator
 
-## Getting Started
+[@finprecise/loans](https://github.com/yasu/finprecise) を使った住宅ローンシミュレーター。
+任意精度演算による正確な返済計算を、直感的な UI で体験できます。
 
-First, run the development server:
+## 機能
+
+- **元利均等 / 元金均等** — 返済方法を切り替えて比較
+- **変動金利** — 任意のタイミングで金利変更ステップを追加
+- **繰上返済** — 期間短縮型・返済額軽減型に対応、あり/なし比較表示
+- **返済スケジュール表** — 年次/月次切替、ページネーション付き
+- **残高推移グラフ** — 残高・元金累計・利息累計を可視化
+- **URL 共有** — 入力条件が URL パラメータに反映され、リンクで共有可能
+
+## 技術スタック
+
+- [Next.js](https://nextjs.org/) (App Router)
+- [@finprecise/loans](https://github.com/yasu/finprecise) — 任意精度ローン計算エンジン
+- [Tailwind CSS](https://tailwindcss.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Recharts](https://recharts.org/) — グラフ描画
+
+## セットアップ
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+http://localhost:3000 でアクセスできます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## テスト
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test
+```
 
-## Learn More
+## ビルド・デプロイ
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Vercel にデプロイする場合は、リポジトリを接続するだけで自動的にビルドされます。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## @finprecise との関係
 
-## Deploy on Vercel
+このプロジェクトは [@finprecise/loans](https://github.com/yasu/finprecise) のデモアプリケーションです。
+`@finprecise/loans` は npm パッケージとして依存しており、monorepo の一部ではありません。
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+計算ロジックはすべて `@finprecise/loans` の `loanSchedule()` 関数に委譲しています。
+本アプリの [`lib/calculate.ts`](lib/calculate.ts) は UI とライブラリを繋ぐ薄いラッパーです。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ライセンス
+
+MIT
