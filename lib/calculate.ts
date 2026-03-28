@@ -134,21 +134,24 @@ export function serializeInput(input: LoanInput): URLSearchParams {
   return params;
 }
 
+function safeNum(raw: string | null, fallback: number): number {
+  if (raw == null || raw === "") return fallback;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : fallback;
+}
+
 export function deserializeInput(
   params: URLSearchParams,
   defaults: LoanInput
 ): LoanInput {
-  const p = params.get("p");
-  const y = params.get("y");
-  const r = params.get("r");
   const m = params.get("m");
   const rc = params.get("rc");
   const pp = params.get("pp");
 
   const input: LoanInput = {
-    principal: p ? Number(p) : defaults.principal,
-    years: y ? Number(y) : defaults.years,
-    annualRate: r ? Number(r) : defaults.annualRate,
+    principal: safeNum(params.get("p"), defaults.principal),
+    years: safeNum(params.get("y"), defaults.years),
+    annualRate: safeNum(params.get("r"), defaults.annualRate),
     method:
       m === "level-payment" || m === "level-principal"
         ? m
@@ -158,21 +161,36 @@ export function deserializeInput(
   };
 
   if (rc) {
-    input.rateChanges = rc.split(",").map((s) => {
-      const [fromYear, annualRate] = s.split(":");
-      return { fromYear: Number(fromYear), annualRate: Number(annualRate) };
-    });
+    input.rateChanges = rc
+      .split(",")
+      .map((s) => {
+        const parts = s.split(":");
+        const fromYear = Number(parts[0]);
+        const annualRate = Number(parts[1]);
+        return Number.isFinite(fromYear) && Number.isFinite(annualRate)
+          ? { fromYear, annualRate }
+          : null;
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
   }
 
   if (pp) {
-    input.prepayments = pp.split(",").map((s) => {
-      const [atYear, amount, strategy] = s.split(":");
-      return {
-        atYear: Number(atYear),
-        amount: Number(amount),
-        strategy: (strategy === "r" ? "reduce-payment" : "shorten-term") as PrepaymentStrategy,
-      };
-    });
+    input.prepayments = pp
+      .split(",")
+      .map((s) => {
+        const parts = s.split(":");
+        const atYear = Number(parts[0]);
+        const amount = Number(parts[1]);
+        const strategy = parts[2];
+        return Number.isFinite(atYear) && Number.isFinite(amount)
+          ? {
+              atYear,
+              amount,
+              strategy: (strategy === "r" ? "reduce-payment" : "shorten-term") as PrepaymentStrategy,
+            }
+          : null;
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
   }
 
   return input;

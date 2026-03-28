@@ -173,7 +173,7 @@ export default function LoanForm({ value, onChange, errors = [] }: Props) {
           </div>
           <Slider
             min={0.1}
-            max={10}
+            max={20}
             step={0.05}
             value={[value.annualRate]}
             onValueChange={(val) => { const v = Array.isArray(val) ? val[0] : val; update({ annualRate: Math.round(v * 100) / 100 }); }}
@@ -286,7 +286,7 @@ export default function LoanForm({ value, onChange, errors = [] }: Props) {
                   className="w-16"
                 />
                 <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  年目に
+                  年目初月
                 </span>
                 <Input
                   type="number"

@@ -207,4 +207,88 @@ describe("serializeInput / deserializeInput", () => {
     const restored = deserializeInput(new URLSearchParams(), baseInput);
     expect(restored).toEqual(baseInput);
   });
+
+  it("NaN値はデフォルトにフォールバック", () => {
+    const params = new URLSearchParams("p=abc&y=&r=NaN&m=invalid");
+    const restored = deserializeInput(params, baseInput);
+    expect(restored.principal).toBe(baseInput.principal);
+    expect(restored.years).toBe(baseInput.years);
+    expect(restored.annualRate).toBe(baseInput.annualRate);
+    expect(restored.method).toBe(baseInput.method);
+  });
+
+  it("不正な金利変更パラメータは除外される", () => {
+    const params = new URLSearchParams(
+      "p=35000000&y=35&r=0.5&m=level-payment&rc=abc:def,6:1.5"
+    );
+    const restored = deserializeInput(params, baseInput);
+    expect(restored.rateChanges).toEqual([{ fromYear: 6, annualRate: 1.5 }]);
+  });
+
+  it("不正な繰上返済パラメータは除外される", () => {
+    const params = new URLSearchParams(
+      "p=35000000&y=35&r=0.5&m=level-payment&pp=nan:nan:s,5:1000000:s"
+    );
+    const restored = deserializeInput(params, baseInput);
+    expect(restored.prepayments).toEqual([
+      { atYear: 5, amount: 1000000, strategy: "shorten-term" },
+    ]);
+  });
+
+  it("Infinity値はデフォルトにフォールバック", () => {
+    const params = new URLSearchParams("p=Infinity&y=-Infinity");
+    const restored = deserializeInput(params, baseInput);
+    expect(restored.principal).toBe(baseInput.principal);
+    expect(restored.years).toBe(baseInput.years);
+  });
+});
+
+// ─── 繰上返済比較ロジック ───
+
+describe("繰上返済比較", () => {
+  it("繰上返済で利息が減り、その差額が正しい", () => {
+    const without = simulate(baseInput);
+    const withPrepay = simulate({
+      ...baseInput,
+      prepayments: [{ atYear: 5, amount: 3000000, strategy: "shorten-term" }],
+    });
+    const interestSaved = without.totalInterest - withPrepay.totalInterest;
+    expect(interestSaved).toBeGreaterThan(0);
+    const periodsSaved =
+      without.effectivePeriods - withPrepay.effectivePeriods;
+    expect(periodsSaved).toBeGreaterThan(0);
+  });
+});
+
+// ─── 大きな値 ───
+
+describe("大きな値", () => {
+  it("借入額2億・50年でもオーバーフローしない", () => {
+    const result = simulate({
+      principal: 2000000000,
+      years: 50,
+      annualRate: 3,
+      method: "level-payment",
+      rateChanges: [],
+      prepayments: [],
+    });
+    expect(result.rows.length).toBe(600);
+    expect(result.totalPayment).toBeGreaterThan(2000000000);
+    expect(Number.isFinite(result.totalPayment)).toBe(true);
+    expect(Number.isFinite(result.totalInterest)).toBe(true);
+  });
+
+  it("借入額2億・元金均等・50年", () => {
+    const result = simulate({
+      principal: 2000000000,
+      years: 50,
+      annualRate: 5,
+      method: "level-principal",
+      rateChanges: [],
+      prepayments: [],
+    });
+    expect(result.rows.length).toBe(600);
+    const totalPrincipal = result.rows.reduce((s, r) => s + r.principal.toNumber(), 0);
+    expect(totalPrincipal).toBeCloseTo(2000000000, -3);
+  });
 });

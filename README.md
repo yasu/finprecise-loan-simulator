@@ -5,6 +5,8 @@
 [@finprecise/loans](https://github.com/yasu/finprecise) を使った住宅ローンシミュレーター。
 任意精度演算による正確な返済計算を、直感的な UI で体験できます。
 
+![住宅ローン シミュレーター](public/og-image.png)
+
 ## 機能
 
 - **元利均等 / 元金均等** — 返済方法を切り替えて比較

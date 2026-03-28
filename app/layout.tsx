@@ -12,10 +12,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = "https://finprecise-loan-simulator.vercel.app";
+const title = "住宅ローン シミュレーター | finprecise";
+const description =
+  "変動金利・繰上返済・元利均等/元金均等に対応した住宅ローンシミュレーター。任意精度演算エンジン @finprecise/loans による正確な計算。";
+
 export const metadata: Metadata = {
-  title: "住宅ローン シミュレーター | finprecise",
-  description:
-    "変動金利・繰上返済・元利均等/元金均等に対応した住宅ローンシミュレーター。任意精度演算エンジン @finprecise/loans による正確な計算。",
+  title,
+  description,
   keywords: [
     "住宅ローン",
     "シミュレーター",
@@ -25,6 +29,29 @@ export const metadata: Metadata = {
     "元利均等",
     "元金均等",
   ],
+  openGraph: {
+    title,
+    description,
+    url: siteUrl,
+    siteName: "finprecise Loan Simulator",
+    images: [
+      {
+        url: `${siteUrl}/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: "住宅ローン シミュレーター スクリーンショット",
+      },
+    ],
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: [`${siteUrl}/og-image.png`],
+  },
+  metadataBase: new URL(siteUrl),
 };
 
 export default function RootLayout({

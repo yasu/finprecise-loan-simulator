@@ -93,22 +93,26 @@ export default function Chart({ rows }: Props) {
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={data}
-              margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             >
               <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
               <XAxis
                 dataKey="year"
                 tickFormatter={(v) => `${v}年`}
-                fontSize={12}
+                fontSize={11}
+                interval="preserveStartEnd"
               />
-              <YAxis tickFormatter={formatAxisYen} fontSize={12} width={50} />
+              <YAxis tickFormatter={formatAxisYen} fontSize={11} width={45} />
               <Tooltip
                 formatter={(value) => [
                   `${formatJPY(Number(value))}円`,
                 ]}
                 labelFormatter={(v) => `${v}年目`}
               />
-              <Legend />
+              <Legend
+                verticalAlign="bottom"
+                wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
+              />
               <Area
                 type="monotone"
                 dataKey="残高"
